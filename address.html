@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Buy Guitar Course</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #c9d6ff, #e2e2e2);
+      padding: 20px;
+    }
+    .box {
+      max-width: 700px;
+      margin: auto;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+    }
+    h2 {
+      color: #2c3e50;
+      text-align: center;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+    label {
+      margin-top: 15px;
+      font-weight: bold;
+      color: #34495e;
+    }
+    input, select {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #bdc3c7;
+      margin-top: 5px;
+      font-size: 1rem;
+    }
+    #address-section {
+      display: none;
+    }
+    .qr-code img {
+      max-width: 100%;
+      border-radius: 12px;
+      margin-top: 10px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px;
+      background-color: #3498db;
+      color: white;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    .banner {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 20px;
+      display: none;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>🎸 Buy Guitar Course</h2>
+  <div class="banner" id="successBanner">✅ You are registered successfully!</div>
+  <form id="courseForm">
+    <label for="name">Name</label>
+    <input type="text" id="name" name="name" required />
+
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" required />
+
+    <label for="mobile">Mobile Number</label>
+    <input type="text" id="mobile" name="mobile" pattern="[0-9]{10}" required />
+
+    <label for="course">Select Course</label>
+    <select id="course" name="course" onchange="updatePrice()" required>
+      <option value="">-- Select --</option>
+      <option value="Strumming A to Z">Strumming A to Z  - Rs.500/-</option>
+      <option value="Fretwork 101: Finger Course">Fretwork 101: Finger Course  - Rs.500/-</option>
+      <option value="Beginner’s Guitar Bootcamp">Beginner’s Guitar Bootcamp  - Rs.2500/-</option>
+      <option value="Beginner’s Guitar Bootcamp with Guitar">Beginner’s Guitar Bootcamp With Guitar  - Rs.6000/-</option>
+    </select>
+
+    <p id="price">Pay Rs. 500/-</p>
+
+    <div id="address-section">
+      <label for="address">Full Address</label>
+      <input type="text" id="address" name="address" />
+      <label for="pincode">Pin Code</label>
+      <input type="text" id="pincode" name="pincode" />
+      <label for="state">State</label>
+      <input type="text" id="state" name="state" value="Your State" />
+      <label for="country">Country</label>
+      <input type="text" id="country" name="country" value="India" />
+    </div>
+
+    <div class="qr-code">
+      <h3 id="scan-pay-heading">📱 Scan & Pay ₹500/-</h3>
+      <p>Use any UPI app (PhonePe, GPay, Paytm, etc.)</p>
+      <img id="qrImage" src="qr-500.png" alt="QR Code for ₹500" />
+    </div>
+
+    <label for="transactionId">Enter UPI Transaction ID</label>
+    <input type="text" id="transactionId" name="transactionId" required />
+
+    <label for="screenshot">Upload Screenshot of Payment (JPG/PNG)</label>
+    <input type="file" id="screenshot" name="screenshot" accept="image/*" required />
+
+    <button type="submit">Submit</button>
+  </form>
+</div>
+
+<script>
+  function updatePrice() {
+    const course = document.getElementById("course").value;
+    const priceEl = document.getElementById("price");
+    const scanPayHeading = document.getElementById("scan-pay-heading");
+    const qrImage = document.getElementById("qrImage");
+    const addressSection = document.getElementById("address-section");
+
+    let price = 500;
+    let qr = "qr-500.png";
+
+    switch(course) {
+      case "Beginner’s Guitar Bootcamp":
+        price = 2500;
+        qr = "qr-2500.png";
+        addressSection.style.display = "none";
+        break;
+      case "Beginner’s Guitar Bootcamp with Guitar":
+        price = 6000;
+        qr = "qr-6000.png";
+        addressSection.style.display = "block";
+        break;
+      default:
+        price = 500;
+        qr = "qr-500.png";
+        addressSection.style.display = "none";
+    }
+
+    priceEl.textContent = `Pay Rs. ${price}/-`;
+    scanPayHeading.textContent = `📱 Scan & Pay ₹${price}/-`;
+    qrImage.src = qr;
+    qrImage.alt = `QR Code for ₹${price}`;
+  }
+
+  document.getElementById("courseForm").addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const form = event.target;
+    const formData = new FormData(form);
+
+    const file = formData.get("screenshot");
+    const reader = new FileReader();
+
+    reader.onloadend = async function () {
+      const base64String = reader.result.split(",")[1];
+      formData.set("screenshot", base64String);
+      formData.append("mimeType", file.type);
+
+      const response = await fetch("https://script.google.com/macros/s/AKfycbxO5-fej5pP0ReAD35r24WzvTgF8uzQKcd6JMRGLGS6Eb1k7qNYSd0FShcwpootTwxdMw/exec", {
+        method: "POST",
+        body: formData
+      });
+
+      const result = await response.text();
+      document.getElementById("successBanner").style.display = "block";
+      form.reset();
+      updatePrice();
+    };
+
+    reader.readAsDataURL(file);
+  });
+</script>
+
+</body>
+</html>
